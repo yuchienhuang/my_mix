@@ -1,0 +1,133 @@
+Intro:
+
+
+The successfulness of a song is not just determined by the melody or the lyrics itself, but a lot of time, the performers play a very important role. Different renditions can give rise to  quite different perception. I like watching singing competition TV shows. The competitors would usually choose some of those popular songs. It’s interesting to see how they stay true to the original or put their own spin on it. On occasion, I only noticed the songs because of some of the very amazing competitors, and would go back to find out who was the original singer. A cover can become more popular than the original. 
+
+So I decided to build up a web application for cover version analysis. The current functions on the app include searching for cover versions for a given song, which returns back the audio features analyzed by Spotify and lyrics from AZLyrics.com, and a function that calculates the chromatograms of external uploaded audio files.
+
+The current web app contains three main pages:
+
+Home: contains a function for searching for cover versions of songs on Spotify and AZLyrics, and returns the audio features, and external links to audio on spotify and lyrics on AZLyrics.
+
+Audio Analysis: the user can uploade two audio files meeting certain requirements and the function here calculates the chromatograms and the best correspondence between the two files and returns the three plots.
+
+Best cover versions: links to some fun discussion about cover songs
+
+
+
+
+
+
+Takeaway:
+
+
+About the data:
+
+Difficulty 1. In my original proposal, I researched on themillionsongsubset on the Million song data base, which is a 8GB that could be directly downloaded from the website. However, I didn’t hear back from requiring accessing to the 300GB full data base. 
+
+Solution 1. By googling the Echo Nest who did the feature analysis of the database, I learned that they had collaborated with Spotify. The Spotify database for developers is actually a more up-to-date better choice. There are over 30 million songs in the Spotify library also with analyzed audio feature JSON metadata, and of course free audio files to listen to, which wasn’t available if I were to use the Million song data base.
+
+D2. Having set some needed credentials, I can obtain feature data from the spotify restful API endpoints. The data is nice and clean and well-defined. However, I guess there has to be an actual recording album for Spotify to include the song. So the drawback is that it doesn’t seem to contain enough cover versions. More often, the search returns actually the songs with the same names but are not actually cover versions. 
+
+
+S2. To solve the problem to tell wether two songs are indeed the same or different, I needed to know the lyrics information. Unfortunately, the spotify api doesn’t not provide the lyrics information. So I had to look for other sources. And I found the AZLyrics website. Given the song name and the artist name, I automated the process of searching and scraping the lyrics. What made me even happier was that I realized I could learned more cover version information from the website, as it is definitely easier to make a bigger collection of just the lyrics. So the two problems were solved by this second resource. 
+
+procedure: 
+
+i) search by the track name on spotify (spotipy + spotify api): the results contain songs of the name or names overlapping/containning part of the words, so the first filter is for the exact name. However, as mentioned above, there could be songs just happened to have the same name but are completely different. 
+
+ii) find all cover version on azlyrics (beautiful soup + page source classname keywords): grab the first search result on the azlyrics, and go to the url page to look for the information whether it’s the original singer or not. If it is, then loop through all pages of the search results, which then contain all covers of the song (as the words "originally by xxx" would appear and xxx is part of our searching keywords). There are usually other unrelevant results, so need to do another filter here. If it’s not the original singer, then the search results will be limited. To find all cover, we do another search again with the original singer (we learned the original singer’s name xxx again by looking for "originally by xxx")
+
+iii) Now we have a list of singer names from azlyrics. We select those in the spotify results that are in the azlyrics results to return the audio features. (Note that the assumption here is that the results from azlyrics is a super set of the spotify results.)
+
+(Note that I didn’t not really compare lyrics eventually, but used the advantage of the search results to collect the information and did further filtering myself, which would be a lot faster than jump into page by page and grab the lyrics and compare.)
+
+D3. However it can get messy with parsing html.  The lyrics submitted by users may not follow a strict structure. Like whether there are the article "the" or not, or the information of originally singer is not always written as clear. 
+
+S3. In general I stripped off the article, spaces at two ends, punctuations, and made them all lowercases in conditional comparison to filter out the desired results. There are still some bugs to be fixed, need to do more testing cases.
+
+
+
+About the web app implementation:
+
+
+
+web app framework: Flask backend + javascript frontend
+
+I have better control of python language than say javascript. To construct a full-featured web app in a short amount of time, I need something that allows me to work with python. And I found Flask! It is written in python. It contains development server and can make RESTful requests with.
+
+I studied many examples (two main useful repos https://github.com/CoreyMSchafer/code_snippets/tree/master/Python/Flask_Blog for web structure and using flask; https://github.com/markkohdev/spotify-api-starter for using spotipy package functions), and then I structured my own as follows: 
+
+.
+├── mymix
+│   ├── __init__.py: setup the app (flask framework, sqlalchemy database)
+│   ├── audioAnalysis.py: calculates the chromatograms and the optimal correspondence of two uploaded audio files
+│   ├── azlyrics.py: scrapes information from the AZLyrics with the beatifulsoup package, and filters and processes the extracted data 
+│   ├── models.py: contains Model classes of my data. I used SQLAlchemy, which is the Python SQL toolkit that allows us to access our database in an object-oriented way. And we can use different databases with same python code.
+│   ├── public: javascript, css
+│   │   ├── audioanalysis.js: associated with audioanalysis.html
+│   │   ├── client.js: associated with index.html
+│   │   ├── generated_plots: generated by functions in audioAnalysis.py
+│   │   │   ├── optimal_path.png
+│   │   │   ├── plot1.png
+│   │   │   └── plot2.png
+│   │   ├── render.js: utility functions related with posting information on the web app
+│   │   ├── style.css: styling
+│   │   └── uploaded_audio_files: uploaded by the user
+│   │       ├── audio_file_1.wav
+│   │       └── audio_file_2.wav
+│   ├── routes.py: sets the routes
+│   ├── site.db: sqlite database
+│   ├── spotify.py: talks to the Spotify API server, and processes the feature data I would like to use on my web app
+│   └── views: html files
+│       ├── audioanalysis.html (on nav bar)
+│       ├── bestcovers.html (on nav bar)
+│       ├── features.html: derived from the index.html
+│       └── index.html (on nav bar)
+├── requirements.txt: python package dependencies
+├── run.py
+└── start.sh
+
+
+Difficulties:
+
+How to make things work as I wanted…
+
+for example: 
+
+I want the results shown on the screen updated only after new searching, but not refreshing the page or go back to the page => I realized it’s probably easier to have some my one database to store the calculated data, and everything I load the page, i will print out the stored data from the latest search. When there is another search, I delete all data in the database. 
+
+However I want the user to enter with a clean page. If it’s the first time into the page, I don’t want the residual data in the data base gets printed => a session storage trick! :D 
+
+
+
+How to prevent my app from crashing due to incorrect usage…
+
+for example: if the click run before having uploaded two audio files => rename the file name so that the files in the database are always that two files, and I can check whether there are these two files. And messages to communicate with the users are in need=> extra benefit: my data base doesn’t grow.
+
+Or more detailed stuff like whether I want a url to be linked on a separated tab or not 
+
+
+Keys and thoughts:
+1. Google and read many, and tell what are relevant materials/tools to use from tons.
+2. People’s works are for different purposes, need to know how to parse and modify the tools in my context.
+3. Don’t hang on to death an idea you thought great but didn’t work; don’t give up the idea forever, it could come in later for a different purpose!
+
+
+TODO:
+1. my own analysis section
+2. current assumption AZ > Spotify, if not…go back to compare lyrics similarities?
+3. current assumption the first search result is the correct one, but I know cases that are not…
+4. Deploy…………I couldn’t do heroku, now I am using glitch. However, there seems to be a storage limitation on uploading files
+
+
+
+
+
+
+
+
+
+
+
+
