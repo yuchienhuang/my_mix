@@ -3,7 +3,7 @@ Intro:
 
 The successfulness of a song is not just determined by the melody or the lyrics itself, but a lot of time, the performers play a very important role. Different renditions can give rise to  quite different perception. I like watching singing competition TV shows. The competitors would usually choose some of those popular songs. It’s interesting to see how they stay true to the original or put their own spin on it. On occasion, I only noticed the songs because of some of the very amazing competitors, and would go back to find out who was the original singer. A cover can become more popular than the original. 
 
-So I decided to build up a web application for cover version analysis. The current functions on the app include searching for cover versions for a given song, which returns back the audio features analyzed by Spotify and lyrics from AZLyrics.com, and a function that calculates the chromatograms of external uploaded audio files.
+So I decided to build up a web application for cover version analysis.
 
 The current web app contains three main pages:
 
