@@ -7,3 +7,10 @@ urllib3
 bs4
 matplotlib
 scipy
+pandas
+dill
+jinja2
+pip
+simplejson
+sklearn
+xgboost

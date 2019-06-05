@@ -73,9 +73,10 @@ function renderNavbar() {
   // const navbarDiv = document.getElementById('nav-item-container');
   const navbarDiv = document.getElementById('nav-item-container');
   
-  navbarDiv.appendChild(newNavbarItem('Home', '/'));
-  navbarDiv.appendChild(newNavbarItem('Audio Analysis', '/audio_analysis'));
-  navbarDiv.appendChild(newNavbarItem('Best Cover Versions &#10084', '/best_cover_versions'));
+  navbarDiv.appendChild(newNavbarItem('Cover Versions &#10084', '/'));
+  navbarDiv.appendChild(newNavbarItem('W&#592z&#592uS', '/audio_analysis'));
+  navbarDiv.appendChild(newNavbarItem('&#191Hit the Hit?', '/predictor'));
+  // navbarDiv.appendChild(newNavbarItem('Best Cover Versions &#10084', '/best_cover_versions'));
 
 
   

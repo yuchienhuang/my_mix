@@ -19,12 +19,23 @@ $(function() {
         
 
        }else {
+        if(string.substring(0, 3)=='not'){
+          const spotifyDiv = document.getElementById('results');
+          spotifyDiv.innerHTML = "";  
+          const azlyricsDiv = document.getElementById('no results');
+          azlyricsDiv.innerHTML = string;
+          
 
-        const spotifyDiv = document.getElementById('results');
-        spotifyDiv.innerHTML = "";
+        }else{
+          const spotifyDiv = document.getElementById('results');
+          spotifyDiv.innerHTML = "";
+          const azlyricsDiv = document.getElementById('no results');
+          azlyricsDiv.innerHTML = string;
 
-        const azlyricsDiv = document.getElementById('no results');
-        azlyricsDiv.innerHTML = string;
+        }
+        
+
+        
       }
        
        
