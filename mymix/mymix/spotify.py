@@ -49,9 +49,17 @@ def audio_feature_decorator(spotify_audio_features_func):
 def audio_features(track_id_list):
     return spotify.audio_features(track_id_list)
 
+def print_tracks(ls):
+    string = ""
+    for n, t in ls:
+        string += (str(n) + '. ' + t +  ', ') 
+    
+    return string[:-2] 
 
 def print_artists(ls):
-    if len(ls) == 2:
+    if len(ls) ==1:
+        return ls[0]
+    elif len(ls) == 2:
         return ' & '.join(ls)
     else:
         return ', '.join(ls[:-1]) + ' & ' + ls[-1]
@@ -63,8 +71,9 @@ def get_data(album_json):
     return {k: album_json[k] for k in ['id', 'name', 'genres', 'popularity', 'total_tracks', 'artists_list']}, tracks_df
     
 
-def get_audio_link(album_id):
-    return "https://open.spotify.com/track/" + album_id
+def get_audio_link(track_or_album_id, type_='track'):
+    return "https://open.spotify.com/" + type_ + "/" + track_or_album_id
+    # return "https://open.spotify.com/track/" + album_id
 
 def album_json(album_id):
     print('album_id: ',album_id)

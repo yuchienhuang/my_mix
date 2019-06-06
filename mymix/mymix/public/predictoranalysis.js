@@ -5,24 +5,46 @@ $(function() {
       let song = $('input[name="song"').val();
       let artist = $('input[name="artist"]').val();
       
-      $.getJSON('/feature_table?' + $.param({song: song, artist: artist}), function(data) {
+      $.get('/feature_table?' + $.param({song: song, artist: artist}), function(data) {
         $('input[type="text"]').val('');
         $('input').focus();
         
         
         //let obj = jQuery.parseJSON( data );
 
-        let table = data.trackdf
+        let table = data.trackdf;
         let link = data.link;
-        let artists = data.artists
+        let artists = data.artists;
+        let hits = data.hit_list;
+        let topthree = data.top_three;
+        let album_popularity = data.popularity;
        
         const albumDiv = document.getElementById('albumlink');
+        while (albumDiv.firstChild) {
+          albumDiv.removeChild(albumDiv.firstChild);
+        }  
         albumDiv.appendChild(StoryDOMObject(link,artists,newtab=true));
-
       
 
+      
+        
+        const predictionDiv = document.getElementById('prediction');
+        if(hits == ''){
+          predictionDiv.innerHTML = '<div> no song seem to pass the hit song threshold, but may as well look at the following three songs with top scores </div>';
+        }else{predictionDiv.innerHTML = hits;}
+        
+
+        const scoreDiv = document.getElementById('score');
+        scoreDiv.innerHTML =  topthree;
+      
+
+        const albumPopDiv = document.getElementById('album');
+        albumPopDiv.innerHTML = '<div> (album popularity score: ' + album_popularity + ') </div>';
+
         const tableDiv = document.getElementById('print');
+        
         tableDiv.innerHTML = table;
+
 
         
          

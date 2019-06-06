@@ -9,6 +9,8 @@ from mymix.spotify import *
 from mymix.audioAnalysis import *
 import pandas as pd
 import dill
+import sklearn
+import seaborn as sns
 
 
 # p = os.path.join(app.root_path, 'public/ml_models/testmodel.pkd')
@@ -243,7 +245,8 @@ def feature_table():
 
     abj = album_json(album_id)
     a = Album(abj)
-    print(hit_song_predictor(a, model))
+    hit_list, top_three = hit_song_predictor(a, model)
+    
     
 
     # print('album id: ', abj['popularity'], ' type: ', type(int(abj['popularity'])))
@@ -257,11 +260,30 @@ def feature_table():
     
 
     artist_names = print_artists(album_info['artists_list'])
-    spotify_album_link = get_audio_link(album_id)
-    tracks_html = tracks_info[['name','popularity','acousticness','danceability','energy','liveness','loudness','speechiness']].set_index('name').sort_values(by='popularity',ascending=False).to_html()
+    spotify_album_link = get_audio_link(album_id, 'album')
+    
+    
+    
+    
+
+    # tracks_html = tracks_info[['name','popularity','acousticness','danceability','energy','liveness','loudness','speechiness']].set_index('name').sort_values(by='popularity',ascending=False).to_html()
     
     # print(artist_names,spotify_album_link)
+    hit_str = print_tracks(hit_list)
+    top_three_str = print_tracks(top_three)
 
+    # hit_html = pd.DataFrame(hit_list).to_html(index=False, header=False)
+    # top_three_html = pd.DataFrame(top_three).to_html(index=False, header=False)
+
+    #print(hit_str, top_three_str)
     
-    return jsonify(trackdf= tracks_html, link= spotify_album_link, artists= artist_names)
+    cm = sns.light_palette("pink", as_cmap=True)
+    
+    df = a.tracks_df[['track_number', 'name','popularity','acousticness', 'danceability', 'energy', 'liveness', 'speechiness','valence']].sort_values(by='popularity',ascending=False).set_index('track_number')
+    del df.index.name
+    tracks_html = df.style.background_gradient(cmap=cm)._repr_html_()
+    
+    
+    
+    return jsonify(trackdf=tracks_html, link=spotify_album_link, artists=artist_names, hit_list=hit_str, top_three=top_three_str, popularity=a.popularity)
     # return jsonify(link= spotify_album_link)

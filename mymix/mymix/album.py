@@ -8,13 +8,17 @@ def hit_song_predictor(album, model):
     X, y = album.train_X_y()
     y_est = model.predict(X)
     indices = np.arange(album.total_tracks)[y_est]
-    if len(indices):
-        return album.tracks_df[[ 'track_number',  'name']].values[indices], True
-    else:
-        y_est_prob_mtx = model.predict_proba(X)
-        y_est_prob_mtx[:, 0] = np.arange(album.total_tracks)
-        indices = np.array(heapq.nlargest(3, y_est_prob_mtx, key=lambda x: x[1]))[:,0].astype(int)
-        return album.tracks_df[[ 'track_number',  'name']].values[indices], False
+    hit_list = album.tracks_df[[ 'track_number',  'name']].values[indices]
+
+    y_est_prob_mtx = model.predict_proba(X)
+    y_est_prob_mtx[:, 0] = np.arange(album.total_tracks)
+    indices = np.array(heapq.nlargest(3, y_est_prob_mtx, key=lambda x: x[1]))[:,0].astype(int)
+    
+    top_three = album.tracks_df[[ 'track_number',  'name']].values[indices] 
+        
+    return hit_list, top_three
+
+
 
 class Album(object):
     def __init__(self, album_json):
